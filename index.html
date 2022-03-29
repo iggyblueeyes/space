@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A little game.">
+    <meta name="author" content="Caleb Ignace">
+    <style>
+      body {
+	  color: #f0f6f0;
+        }
+        button {
+            font-size:20px;
+            font-weight: bold;
+    	    outline:none;
+	    border:none;
+	    background-color: #f0f6f0;
+	    padding-left:2%;
+            padding-right:2%;
+            padding-top:.5%;
+            padding-bottom:.5%;
+	    margin-top: 3%;
+	    border-radius: 12px;
+        }
+	button:hover {
+	    background: lightgrey;
+	}
+	a {
+	    color: #f0f6f0;
+	}
+        .container {
+            width:100%;
+            margin-left:auto;
+            margin-right:auto;
+	    text-align: center;
+        }
+        .content {
+            border:3px dashed none;
+            margin-left:auto;
+            margin-right:auto;
+            margin-top:1%;
+            margin-bottom:1%;
+            width:80%;
+            background-color: #222323;
+        }
+        .map-container{
+            border:3px dashed none;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align:center;
+        }
+        .pause-button {
+            font-weight: bold;
+            padding-left:.5%;
+            padding-right:.5%;
+            padding-top:.25%;
+            padding-bottom:.5%;
+            top: 5%;
+            left: 94%;
+            -ms-transform: translate(-94%, -5%);
+            transform: translate(-94%, -5%);
+            position:absolute;
+            visibility:hidden;
+        }
+        .game-menu {
+	    width:50%;
+	    /*
+	      left:50%;
+            top:50%;
+	    -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+	   */
+	    margin-left: auto;
+	    margin-right: auto;
+	    position: relative;
+	    background-color: rgb(20,20,20, 0.8);
+	    border: 5px solid #f0f6f0;
+	    padding:3%;
+	    visibility: visible;
+        }
+        .game-controls {
+            top:90%;
+            left:50%;
+            -ms-transform: translate(-50%, -90%);
+            transform: translate(-50%, -90%);
+            position:absolute;
+            width:100%;
+        }
+        .control-group-butdton {
+            margin:1%;
+            background-color: #f0f6f0;
+            color: #222323;
+            border:none;
+            box-shadow: 1px 1px 3px #f0f6f0;
+        }
+        .menu-button {
+        }
+        h1 {
+	    font-size:60px;
+            margin-top:5%;
+            margin-bottom:5%;
+	    text-shadow: 4px 4px 5px #f0f6f0;
+        }
+	h2 {
+            font-size:20px;
+            margin-top:3%;
+            margin-bottom:3%;
+        }
+        p {
+	    font-size: 15px;
+            margin-top:1%;
+            margin-bottom:1%;
+        }
+        input[type="range"] {
+            width:20%;
+            -ms-transform: translate(-0%, 20%);
+            transform: translate(-0%, 20%);
+            margin-left:1%;
+            margin-right:1%;
+        }
+        output {
+            padding:1%;
+            border:solid .1px;
+        }
+        
+        .map{
+            position:absolute;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+            background-color:#141414;
+        }
+	.mini-map {
+	    position:absolute;
+            right:5%;
+            bottom:5%;
+            width:25%;
+            height:25%;
+            background-color:#141414;/*#141414;*/
+	    border: 5px #f0f6f0 solid;
+	    visibility: hidden;
+	}
+	.control-panel {
+            position:absolute;
+            left:50%;
+            bottom:5%;
+	    width:50%;
+	    -ms-transform: translate(-50%);
+            transform: translate(-50%);
+            background-color:transparent;/*#141414;*/
+            visibility: hidden;
+        }
+	.offer-restart {
+	    left:50%;
+            top:10%;
+            -ms-transform: translate(-50%, -10%);
+            transform: translate(-50%, -10%);
+            position: fixed;
+            background-color: rgb(20,20,20, 0.8);
+	    border: 2px solid #f0f6f0;
+            padding:1%;
+	    visibility: hidden;
+	}
+	.monolog {
+            left:50%;
+            bottom:15%;
+            -ms-transform: translate(-50%, 15%);
+            transform: translate(-50%, 15%);
+            position: fixed;
+            background-color: rgb(20,20,20, 0.8);
+            border: 2px solid #f0f6f0;
+            padding:1%;
+            visibility: hidden;
+        }
+	.loading {
+            left:50%;
+            top:50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            position: fixed;
+            background-color: rgb(20,20,20, 0.8);
+            border: 5px solid #f0f6f0;
+            padding: 3%;
+            visibility: hidden;
+        }
+        .resume-button {
+            font-weight: bold;
+            padding-left:.5%;
+            padding-right:.5%;
+            padding-top:.25%;
+            padding-bottom:.5%;
+            position:absolute;
+            visibility:hidden;
+            background-color: #f0f6f0;
+            color: #141414;
+        }
+	.music {
+	    margin-bottom: 3%;
+	    font-size:10px;
+	    -ms-transform: translate(-0%, 30%);
+            transform: translate(-0%, 30%);
+	}
+    </style>
+</head>
+<body>
+  <canvas class="map" id="game-map"></canvas>
+  <div class="container">
+    <div class="game-menu" id="main-menu" style="text-align:center;">
+        <p>Currently NOT playable without keyboard.</p>
+        <h1>Space Wars</h1>
+        <p>a little game by <a href="http://calebignace.xyz/" target="_blank">Caleb Ignace</a></p>
+        <button onclick="play()" id="play-button" onclick="play()">Play</button>
+        <h2>Galaxy type</h2>
+        <div style="margin-bottom: 3%">
+	        <input type="radio" id="regular" name="galaxy-type" value="regular" onclick="onSelectGalaxyType(this)" checked>
+        	<label for="male">Cluster</label>
+        	<input type="radio" id="spiral" name="galaxy-type" value="spiral" onclick="onSelectGalaxyType(this)">
+        	<label for="female">Spiral</label>
+        	<input type="radio" id="rings" name="galaxy-type" value="rings" onclick="onSelectGalaxyType(this)">
+        	<label for="other">Rings</label>
+        </div>
+        <!--
+        <h2>Galaxy size</h2>
+        <div style="margin-bottom: 3%">
+            <input type="radio" id="small" name="galaxy-size" value="small" onclick="onSelectGalaxySize(this)" checked>
+            <label for="male">Small</label>
+            <input type="radio" id="large" name="galaxy-size" value="large" onclick="onSelectGalaxySize(this)">
+            <label for="female">Large</label>
+        </div>
+        -->
+        <h2>How to play</h2>
+        <p>Press left (right) key to rotate ship left (right).</p>
+        <p>Press down	key to stop rotating.</p>
+        <p>Press up key to move ship forward.</p>
+        <h2>Paired music</h2>
+        <p>"Always" by <a href="https://music.eastforest.org/" target="_blank">East Forest</a>:</p>
+        <audio controls class="music" loop>
+            <source src="media/always.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    
+    <div class="offer-restart" id="dialog-restart">
+      <p id="dialog-restart-message"></p>
+      <button onclick="restart()" style="font-size:15px;">Restart</button>
+    </div>
+
+    <div class="monolog" id="dialog-monolog">
+      <p id="dialog-monolog-message"></p>
+      <button onclick="document.getElementById('dialog-monolog').style.visibility = 'hidden';" style="font-size:15px;">Close</button>
+    </div>
+
+    <div class="control-panel" id="control-panel">
+      <label for="game-speed">Game speed: </label><span id="display-game-speed" style="color:darkred; font-weight:bold">0.3</span><br>
+      <input type="range" min=".1" max="2" value=".2" step="0.01" class="slider" id="game-speed" oninput="changeGameSpeed(this);" style="width=100px; outline: none;">
+    </div>
+
+    <div class="loading" id="loading-screen">
+      <p><b>Loading...</b><br></p>
+      <!--<h2>How to play</h2>
+      <p>Use the right key to rotate ship clockwise.</p>
+      <p>Use the left key to rotate ship counter-clockwise.</p>
+      <p>Use the down key to stop rotating in either direction.</p>
+      <p>Use the up key to move forward.</p>
+      <p>To slow down, you need to point your ship in the opposite direction and go forward.</p>
+      -->
+      <p>Slow or speed up the game up with slider at bottom.</p>
+      <p>Currently NOT playable without keyboard.</p>
+    </div>
+    
+    <canvas class="mini-map" id="mini-map"></canvas>
+      <!--<button class="resume-button" id="resume-button" onclick="resume()" style="top: 45%;">Resume</button>-->
+    <!--<button class="resume-button" id="quit-button" onclick="mainMenu()" style="top: 55%;">Quit</button>-->
+    
+    <!--<button class="pause-button" id="pause-button" onclick="pause()">||</button>-->
+    <!--<div class="game-controls" id="game-controls">-->
+    </div>
+    
+    <script>
+      function changeGameSpeed(e) {
+	  console.log("change speed", e.which, e.keycode)
+	  game.speed = Number(document.getElementById("game-speed").value);
+	  document.getElementById("display-game-speed").innerHTML = document.getElementById("game-speed").value;
+      }
+
+      
+      // Prevent keypad from changing game-speed input
+      document.getElementById('game-speed').addEventListener('keydown', function(e) {
+	  if (37 <= e.which && e.which <= 40) {
+	      e.preventDefault();
+	  }
+      });
+
+      
+      function furtherControls(show) {
+          if (show) {
+              document.getElementById('further-controls').style.visibility = 'visible';
+          } else {
+              document.getElementById('further-controls').style.visibility = 'hidden';
+          }
+      }
+      
+        let gameMapCanvas = document.getElementById("game-map");
+        let gameMapContext = gameMapCanvas.getContext("2d");
+
+      let miniMapCanvas = document.getElementById("mini-map");
+      let miniMapContext = miniMapCanvas.getContext("2d");
+
+      //setCanvasDimensions();
+
+      //let game = new Game();
+      /*
+        miniMapContext.beginPath();
+        miniMapContext.arc(miniMapCanvas.width/2, miniMapCanvas.height/2, 100, 0, 2 * Math.PI);
+        miniMapContext.fillStyle = "white";
+        miniMapContext.fill();
+        miniMapContext.lineWidth = 1;
+        miniMapContext.strokeStyle = "white";
+        miniMapContext.stroke();
+      */
+      //miniMapContext.beginPath();
+      //miniMapContext.arc(100, 75, 50, 0, 2 * Math.PI);
+      //miniMapContext.stroke();
+
+      window.addEventListener('resize', setCanvasDimensions);
+        
+      function setCanvasDimensions() {
+          document.getElementById("game-map").width = 1000*window.innerWidth/(window.innerWidth + window.innerHeight);//window.innerWidth;
+          document.getElementById("game-map").height = 1000*window.innerHeight/(window.innerWidth + window.innerHeight);//window.innerHeight;
+
+	  game.render();
+	  
+	  if (game.minimap) {
+	      document.getElementById("mini-map").width = 400*window.innerWidth/(window.innerWidth + window.innerHeight);//window.innerWidth;
+              document.getElementById("mini-map").height = 400*window.innerHeight/(window.innerWidth + window.innerHeight);//window.innerHeight;
+	  }
+      }
+    
+        function play() {
+            //force_landscape();
+
+	    force_landscape();
+	    
+	    console.log("loading screen")
+	    document.getElementById('loading-screen').style.visibility = 'visible';
+	    
+	    //console.log(document.querySelector('input[name="galaxy-type"]:checked').value)
+	    //let game = new Game();
+
+	    new Promise(()=>{
+		setTimeout(()=>{
+		    game.run();
+		}, 100);
+	    });
+
+	    document.getElementById('control-panel').style.visibility = 'visible';
+	    
+	    //game.run();
+	    
+            //console.log('width = ', document.getElementById("game-map").width, '; height = ',document.getElementById("game-map").height)
+            
+            document.getElementById("main-menu").style.visibility = "hidden";
+
+	    if (game.minimap) {
+		document.getElementById("mini-map").style.visibility = "visible";
+	    }
+	    /*
+            if (document.getElementById("play-with-controls").checked) {
+                document.getElementById("game-controls").style.visibility = "visible";
+                document.getElementById("game-controls").innerHTML = "";
+                for (let i = 1; i <= Number(document.getElementById("number-control-groups").value); i++) {
+                    document.getElementById("game-controls").innerHTML += "<button class='control-group-button' id='control-group-button-'"+String(i)+">"+String(i)+"</button>";
+                }
+            } else {
+                document.getElementById("game-controls").style.visibility = "hidden";
+            }
+            
+            for (let element of document.getElementsByClassName("content")) {
+                element.style.visibility = "hidden";
+            }
+            document.getElementById("pause-button").style.visibility = "visible";
+            document.getElementById("further-controls").style.visibility = "hidden"; // should do this because furtherControls() might change it to "visible" prior to "Play" being clicked
+            let username = "Player";
+            */
+
+            //let game = new Game();
+            
+            //game.addPlayer(username);
+            
+            // start capturing input
+            
+            // start game
+        }
+        
+        function resume() {
+            document.getElementById("resume-button").style.visibility = "hidden";
+            document.getElementById("quit-button").style.visibility = "hidden";
+            //play();
+            console.log("resume button doesn't do anything yet");
+        }
+        
+        function pause() {
+            //document.getElementById("view").style.backgroundColor = "lightgrey";
+            document.getElementById("resume-button").style.visibility = "visible";
+            document.getElementById("quit-button").style.visibility = "visible";
+            //document.getElementById("screen").style.position = "relative";
+            //document.getElementById("screen").style.width = "100%";
+            //document.getElementById("screen").style.height = "100%";
+            
+            for (let element of document.getElementsByClassName("content")) {
+                element.style.visibility = "visible";
+            }
+            document.getElementById("pause-button").style.visibility = "hidden";
+            document.getElementById("game-controls").style.visibility = "hidden";
+        }
+        
+      function mainMenu() {
+	  document.getElementById('control-panel').style.visibility = 'hidden';
+            document.getElementById("resume-button").style.visibility = "hidden";
+            document.getElementById("quit-button").style.visibility = "hidden";
+            
+            document.getElementById("main-menu").style.visibility = "visible";
+            document.getElementById("game-controls").style.visibility = "hidden";
+            if (document.getElementById("play-with-controls").checked) {
+                document.getElementById("further-controls").style.visibility = "visible";
+            }
+        }
+    </script>
+    
+    <!--Force full screen and, if possibe, landscape view-->
+    <script>
+        function fullScreenCheck() {
+            if (document.fullscreenElement) return;
+            return document.documentElement.requestFullscreen();
+        }
+        
+        async function rotate(orientation) {
+            try {
+                await fullScreenCheck();
+            } catch(err) {
+                console.error(err);
+            }
+            try {
+                await screen.orientation.lock(orientation);
+            } catch(err) {
+                console.error(err);
+            }
+        }
+        
+        function force_landscape() {
+            rotate("landscape");
+        }
+    </script>
+    
+    <script>
+        function dot(u,v) {
+            return u.x*v.x + u.y*v.y;
+        }
+        
+        function magnitude(vector) {
+            let sum = 0;
+            for (let k in vector) {
+                sum += vector[k]**2;
+            }
+            return Math.sqrt(sum);
+        }
+        
+        function angle(obj1, obj2) {
+            return Math.atan2(obj2.x - obj1.x, obj1.y - obj2.y) - Math.PI/2;
+        }
+
+        let G = 6.67430;
+      
+        function gravityForce(mass, distance) {
+            return G*mass/distance**2;
+        }
+        
+        function randn_bm() {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+            while(v === 0) v = Math.random();
+            let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+            num = num / 10.0 + 0.5; // Translate to 0 -> 1
+            if (num > 1 || num < 0) return randn_bm() // resample between 0 and 1
+            return num
+        }
+        
+        //function distance(obj1, obj2) {
+        //    return 1e7*Math.sqrt((obj1.x - obj2.x)**2 + (obj1.y - obj2.y)**2);
+        //}
+    
+        class Game {
+            constructor(galaxyType, galaxySize, gameSpeed, dialog, running) {
+		this.showDialog = showDialog;
+		this.running = running;
+		//console.log(showDialog);
+		
+		this.speed = gameSpeed;
+		this.scale = 2e2;
+		this.player = new Player(0, 50, 1e2, this.scale);
+                this.objects = [];
+
+		//console.log(galaxyType)
+
+		this.miniMap = false;
+		
+		let sun;
+		
+		//let sun2 = new Object(3*gameMapCanvas.width/4, gameMapCanvas.height/2, randn_bm()*1e5, "yellow", this.scale);
+		//sun2.setVelocity(-.1, .1);
+                //this.objects.push(sun2);
+		
+                this.explosions = [];
+                
+                this.time = 0;
+                
+                this.minimumCollisionTime = 501;
+                this.deltaT = 100;
+                this.explosions = [];
+                
+                let planet;
+                let exponent;
+                let angleToSun;
+		let angle;
+                let max;
+                let min;
+                let mass;
+                //let sun;
+		let speed;
+		let x;
+		let y;
+		let a;
+
+		//let galaxyType = "spiral";
+                /*
+                let speed = 1;
+                planet = new Object(gameMapCanvas.width/4, gameMapCanvas.height/4, 1e15, "#f9f4e6", this.scale);
+                planet.setVelocity(speed, speed);
+                this.objects.push(planet);
+                
+                planet = new Object(gameMapCanvas.width/4 + 300, gameMapCanvas.height/4 + 300, 1e15+1e5, "#f9f4e6", this.scale);
+                planet.setVelocity(-speed, -speed);
+                this.objects.push(planet);
+                */
+
+		let numberObjects;
+		if (galaxySize == "small") {
+		    numberObjects = 30;
+		    galaxySize = 1;
+		} else {
+		    numberObjects = 50;
+		    galaxySize = 1.1;
+		}
+
+		console.log(numberObjects, galaxySize)
+		
+		sun = new Object(0, 0, 1e6, "#ffff00", this.scale);
+                sun.setVelocity(0, 0);
+                this.objects.push(sun);
+
+		this.sun = sun;
+		
+		a = Math.random()*2*Math.PI;
+                let blackHole = new BlackHole(4*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.cos(a),
+                                              4*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.sin(a), 4e5, this.scale);
+                angleToSun = a + Math.PI;
+		//angle = angleToSun;
+		angle =  randn_bm()*Math.PI/5 + angleToSun - Math.PI/10;
+                speed = randn_bm()*galaxySize*1e3/Math.log(blackHole.distanceTo(sun))/this.scale;
+                blackHole.setVelocity(speed*Math.cos(angle), speed*Math.sin(angle));
+                blackHole.color = "#141414";//"#141414";
+                this.objects.push(blackHole);
+		this.blackHole = blackHole;
+		
+		/*
+		sun = new Object(0, 0, 1e6, "#ffff00", this.scale);
+                sun.setVelocity(0, 0);
+                this.objects.push(sun);
+		*/
+
+                for (let i = 0; i < numberObjects; i++) {
+                    /*
+                    // A single object heading towards sun, only for development
+                    planet = new Object(gameMapCanvas.width/4, gameMapCanvas.height/4, 1e27, "#f9f4e6" this.scale);
+                    planet.setVelocity(100, 90);
+                    planet.orbitalBody = sun;
+                    */
+		    if (galaxyType == "regular" || galaxyType == "spiral" || galaxyType == "rings") {
+			if (i < .7*numberObjects) {
+                            mass = Math.random()*10**(2*Math.random());
+			} else if (i < .9*numberObjects) {
+                            mass = Math.random()*10**(5*randn_bm());
+			} else {
+			    mass = 2*Math.random()*10**(7*randn_bm());
+			}
+		    }
+		    //mass = 1e6;
+		    
+		    if (galaxyType == "regular") {
+			a = 2*Math.random()*Math.PI;
+			x = Math.random()*galaxySize*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.cos(a) + 50*Math.cos(a);
+			y = Math.random()*galaxySize*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.sin(a) + 50*Math.sin(a);
+		    //planet = new Astroid(x, y, mass, "#f9f4e6", this.scale);
+			
+			//console.log(planet)
+			
+			planet = new Object(x, y, mass, "#f9f4e6", this.scale);
+			angleToSun = -1*planet.angleTo(sun);
+			//angle = angleToSun + Math.PI;
+			if (Math.random() < .3) {
+			    angle = Math.random()*Math.PI/4 + angleToSun + Math.PI/4;
+			    speed = galaxySize*2e3/Math.log(planet.distanceTo(sun))/this.scale;
+			    planet.setVelocity(speed*Math.cos(angle), -speed*Math.sin(angle));
+			} else {
+			    angle = -Math.random()*Math.PI/4 + angleToSun - Math.PI/4;
+			    //angle = Math.ranodm()*Math.PI + angleToSun - Math.PI/2;
+                            speed = galaxySize*2e3/Math.log(planet.distanceTo(sun))/this.scale;
+                            planet.setVelocity(speed*Math.cos(angle), -speed*Math.sin(angle));
+			}
+		    } else if (galaxyType == "spiral") {
+			a = 3*galaxySize*Math.random()**.4*Math.PI;
+			//if (a < 2*Math.PI) {
+			x = (galaxySize/5*Math.random() + galaxySize/2)*Math.log(a)*Math.cos(a)*a*(galaxySize*3 + 4);
+                        y = (galaxySize/5*Math.random() + galaxySize/2)*Math.log(a)*Math.sin(a)*a*(galaxySize*3 + 4);
+			//} else {
+			//x = (.1*Math.random() + 1.2)*Math.exp(a)*Math.cos(a/3)/100;
+			//y = (.1*Math.random() + 1.2)*Math.exp(a)*Math.sin(a/3)/100;
+			//}
+			planet = new Object(x, y, mass, "#f9f4e6", this.scale);
+			angleToSun = -1*planet.angleTo(sun);
+			angle = angleToSun + Math.PI/2;
+			speed = (galaxySize + 5)*4e2/Math.log(planet.distanceTo(sun))/this.scale;
+			planet.setVelocity(-speed*Math.cos(angle), speed*Math.sin(angle));
+		    } else if (galaxyType == "rings") {
+			a = 2*Math.random()*Math.PI;
+			if (i < .33*numberObjects) {
+                            mass = Math.random()*10**(2*Math.random());
+			    x = (Math.random()*galaxySize/10 + galaxySize/9)*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.cos(a);
+			    y = (Math.random()*galaxySize/10 + galaxySize/9)*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.sin(a);
+                        } else if (i < .66*numberObjects) {
+                            mass = Math.random()*10**(5*randn_bm());
+			    x = (Math.random()*galaxySize/9 + 4*galaxySize/10)*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.cos(a);
+			    y = (Math.random()*galaxySize/9 + 4*galaxySize/10)*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.sin(a);
+                        } else {
+                            mass = 2*Math.random()*10**(7*randn_bm());
+			    x = (Math.random()*galaxySize/8 + 6*galaxySize/10)*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.cos(a);
+			    y = (Math.random()*galaxySize/8 + 6*galaxySize/10)*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.sin(a);
+                        }
+			planet = new Object(x, y, mass, "#f9f4e6", this.scale);
+                        angleToSun = -1*planet.angleTo(sun);
+                        angle = angleToSun + Math.PI/2
+                        speed = galaxySize*8e2/Math.log(planet.distanceTo(sun))/this.scale;
+			if (i < .66*numberObjects) {
+			    planet.setVelocity(-speed*Math.cos(angle), speed*Math.sin(angle));
+			} else {
+			    planet.setVelocity(speed*Math.cos(angle), -speed*Math.sin(angle));
+			}
+		    } else if (galaxyType == "moons") {
+			a = 2*Math.random()*Math.PI;
+                        x = (.8*Math.random() + .2)*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.cos(a);
+                        y = (.8*Math.random() + .2)*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.sin(a);
+                        planet = new Object(x, y, mass, "#f9f4e6", this.scale);
+                        angleToSun = -1*planet.angleTo(sun);
+                        angle = angleToSun + Math.PI/2
+                        speed = 2.5e3/Math.log(planet.distanceTo(sun))/this.scale;
+                        planet.setVelocity(-speed*Math.cos(angle), speed*Math.sin(angle));
+			
+			/*
+			mass = 2e5;
+			x = 150;
+			y = 0;
+			planet = new Object(x, y, mass, "#f9f4e6", this.scale);
+			angle = 3*Math.PI/2;
+			speed = 1.3;//(.5*randn_bm() + .5)*3e3/Math.log(planet.distanceTo(sun))/this.scale;
+			planet.setVelocity(speed*Math.cos(angle), speed*Math.sin(angle));
+			*/
+			if (planet.mass > 1e4) {
+			    let moon;
+			    let distanceFromPlanet, angleToPlanet;
+			    let numberMoons = Math.floor(20*Math.random()*Math.log(planet.radius)) + 3;
+			    let mMass, mA, mX, mY, mAngle, mSpeed;
+			    for (let i = 0; i < numberMoons; i++) {
+				mMass = planet.mass/1e4;
+				mA = 2*(i/numberMoons)*Math.PI;
+				distanceFromPlanet = (2*Math.random() - .1)*Math.log(planet.distanceTo(sun)**2)*Math.log(planet.mass/sun.mass);
+				mX = planet.position.x + distanceFromPlanet*Math.cos(mA);
+				mY = planet.position.y + distanceFromPlanet*Math.sin(mA);
+				moon = new Object(mX, mY, mMass, "#f9f4e6", this.scale);
+				//angleToPlanet = moon.angleTo(planet);
+				mAngle = mA + Math.PI/2;
+				mSpeed = 1e3/Math.log(moon.distanceTo(planet))/this.scale;
+				moon.setVelocity(planet.velocity.x + mSpeed*Math.cos(mAngle),
+						 planet.velocity.y + mSpeed*Math.sin(mAngle));
+				this.objects.push(moon);
+			    }
+			    console.log(numberMoons)
+			}
+			
+			//console.log(this.objects)
+		    }
+
+		    
+
+		    //planet = new Object(x, y, mass, "#f9f4e6", this.scale);
+                    //angleToSun = -1*planet.angleTo(sun);
+                    //angle = angleToSun + Math.PI/2
+                    //speed = 2e3/Math.log(planet.distanceTo(sun))/this.scale;
+
+		    //speed = (1e6 + Math.random()*1e7)/Math.log(planet.mass)/planet.distanceTo(sun)**2/Math.log(Math.abs((angle - angleToSun)%(2*Math.PI)));
+                    
+		    this.objects.push(planet);
+                }
+
+		let comet;
+		a = 2*Math.random()*Math.PI;
+		for (let i = 0; i < 25; i++) {
+		    comet = new Comet(randn_bm()*4e3*Math.cos(a),
+				      randn_bm()*4e3*Math.sin(a),
+				      1e3*Math.random(), this.scale);
+		    angleToSun = a + Math.PI;
+                    angle =  randn_bm()*Math.PI/3 + angleToSun - Math.PI/6;
+                    speed = randn_bm()*2e4/Math.log(comet.distanceTo(sun))/this.scale;
+                    comet.setVelocity(speed*Math.cos(angle), speed*Math.sin(angle));
+		    this.objects.push(comet);
+		}
+
+		/*
+		a = Math.random()*2*Math.PI;
+		let blackHole = new BlackHole(2*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.cos(a),
+					      2*Math.min(gameMapCanvas.width, gameMapCanvas.height)*Math.sin(a), 2e6, this.scale);
+		angleToSun = a + Math.PI;
+                angle =  randn_bm()*Math.PI/2 + angleToSun - Math.PI/4;
+                speed = randn_bm()*1e5/Math.log(comet.distanceTo(sun))/this.scale;
+                blackHole.setVelocity(speed*Math.cos(angle), speed*Math.sin(angle));
+		blackHole.color = "green";
+		this.objects.push(blackHole);
+		*/
+		
+		this.objects.push(this.player);
+
+                this.render();
+
+		this.over = false;
+		this.unplayable = false;
+		this.firstTime = true;
+
+		// conditional events
+		this.events = {"sun": false, "survived-sun":false, "comets-approaching": false, "blackhole": false};
+		
+		// timed events
+		this.timedEvents = {};
+		for (let i = 0; i < 10; i++) {
+		    this.timedEvents[i] = -1; // when the ith story happens is determined later
+		}
+            }
+
+	    offerRestart(message) {
+		this.unplayable = true;
+		this.showDialog(message, "restart");
+                //gameMapContext.clearRect(0, 0, gameMapCanvas.width, gameMapCanvas.height);
+                //miniMapContext.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+	    }
+
+	    showMonolog(message) {
+		this.showDialog(message, "monolog");
+	    }
+
+	    stop() {
+		this.over = true;
+		gameMapContext.globalAlpha = 1;
+                miniMapContext.globalAlpha = 1;
+	    }
+            
+	    run() {
+		this.running();
+		/*
+		new Promise(()=>{
+		    setTimeout(()=>{
+			if (!this.unplayable) {
+                            if (this.sun.mass <= 0) {
+                                gameMapContext.globalAlpha = .5;
+                                miniMapContext.globalAlpha = .5;
+                                this.offerRestart("Hey, the sun is gone. The sunlight was nice while it lasted, huh?");
+                            } else if (this.player.mass == 0) {
+                                this.offerRestart("Hey, you died. That's just part of life you know.");
+                            } else if (this.player.distanceTo(this.sun) > this.scale*1e2) {
+                                this.offerRestart("Hey, you seem to be floating off into infinity. That's not a very good place for a human being to be.");
+                            }
+                        }
+                        if (!this.gameover) {
+                            this.update(this.deltaT*this.speed/1000);
+                        }
+                        if (i == 100000 - 1) {
+                            console.log("i = ", i)
+                        }
+		    }, this.deltaT*i);
+		}).then(this.run(i+1));
+		*/
+		
+		let endI = 300000;
+		for (let i = 0; i < endI; i++) {
+                    setTimeout(()=>{
+			if (!this.unplayable) {
+			    if (this.sun.mass <= 0) {
+   				gameMapContext.globalAlpha = .5;
+				miniMapContext.globalAlpha = .5;
+				this.offerRestart("Hey, the sun is gone. The sunlight was nice while it lasted. Brr I'm getting cold now..");
+			    } else if (this.player.mass == 0 || this.player.exploded) {
+				if (this.sun.mass > 0) {
+ 				    this.offerRestart("Hey, you died. I've fixed your view at the sun so you can watch the solar system evolve if you'd like.");
+				    this.player = this.sun;
+				} else {
+				    this.offerRestart("Hey, you died. That's just part of life you know. Can't live without dying. Can't die without living. Why be upset about it?<br>I've set your view at the blackhole so you can watch it eat everything if you'd like.");
+				    this.player = this.blackhole;
+				}
+			    } else if (this.player.distanceTo(this.sun) > this.scale*5e3) {
+				this.offerRestart("Hey, you seem to be floating off into infinity. Fortunately, unlike in life, you can restart this game. Of course, some experiences are tainted if had twice. I'll let you decide.");
+			    }
+			}
+			
+			if (!this.over) {
+			    this.triggerEvents(i);
+			    this.update(this.deltaT*this.speed/1000);
+			
+			
+			    if (i == endI - 1) {
+				this.offerRestart("This is the end of the beta game, thanks for playing! Reach out and let me know you want me to finish this project.");			    
+			    }
+			}
+                    },this.deltaT);
+                }
+            }
+
+	    setTimedEvent(number, i) {
+		// should really be linear function of message length
+		this.timedEvents[number] = i + Math.floor(1e2*this.deltaT*this.speed);
+	    }
+
+	    triggerEvents(i) {
+		if (!this.unplayable) {
+		    // Events that trigger restart
+		    if (this.sun.mass <= 0) {
+                        gameMapContext.globalAlpha = .5;
+                        miniMapContext.globalAlpha = .5;
+                        this.offerRestart("Hey, the sun is gone. The sunlight was nice while it lasted. Brr I'm getting cold now..");
+                    } else if (this.player.mass == 0 || this.player.exploded) {
+                        if (this.sun.mass > 0) {
+                            this.offerRestart("Hey, you died. I've fixed your view at the sun so you can watch the solar system evolve if you'd like.");
+                            this.player = this.sun;
+                        } else {
+                            this.offerRestart("Hey, you died. That's just part of life you know. Can't live without dying. Can't die without living. Why be upset about it?<br>I've set your view at the blackhole so you can watch it eat everything if you'd like.");
+                            this.player = this.blackhole;
+                        }
+                    } else if (this.player.distanceTo(this.sun) > this.scale*1e3) {
+                        this.offerRestart("Hey, you seem to be floating off into infinity. Fortunately, unlike in life, you can restart this game. Of course, some experiences are tainted if had twice. I'll let you decide.");
+                    }
+
+		    // Events that trigger monolog
+                    if (!this.events["sun"]) {
+                        this.events["sun"] = true;
+                        this.showMonolog("Don't fall into the sun!");
+                    } else if (!this.events["survived-sun"] && this.player.distanceTo(this.sun) > this.scale*8e1) {
+                        this.events["survived-sun"] = true;
+                        this.showMonolog("Good job getting away from the sun! That was close.");
+			this.setTimedEvent(0, i);
+                        //this.timedEvents[0] = i + 10;                                                                                                 
+                    }
+                    else if (!this.events["blackhole"] && this.player.distanceTo(this.blackHole) < this.scale*5e2) {
+                        console.log(this.player.angleTo(this.blackHole));
+                        this.events["blackhole"] = true;
+                        this.showMonolog("A blackhole is approaching! Don't get close to it!");
+                    }
+
+		    // Timed events
+                    if (i == this.timedEvents[0]) {
+                        this.showMonolog("Now we've gotten past the immediate danger, we can do what we came here to do..");
+			this.setTimedEvent(1, i);
+                    } else if (i == this.timedEvents[1]) {
+			this.showMonolog("We're here to see the beauty of this solar system. Look at the astroids.");
+			this.setTimedEvent(2, i);
+                    } else if (i == this.timedEvents[2]) {
+			this.showMonolog("But we have to be careful. There are comets and a blackhole heading this way.");
+			this.setTimedEvent(3, i);
+                    } else if (i == this.timedEvents[3]) {
+			this.showMonolog("Let's just enjoy the music and watch the solar system spin until something happens.");
+                    }
+                }
+	    }
+            
+            update(dt) {
+		//this.player.update(dt, this.objects, -1);
+		/*
+		if (!this.unplayable) {
+		    if (!this.events["sun"]) {
+			this.events["sun"] = true;
+			this.showMonolog("Don't fall into the sun!");
+                    } else if (!this.events["survived-sun"] && this.player.distanceTo(this.sun) > this.scale*5e1) {
+			this.events["survived-sun"] = true;
+                        this.showMonolog("Good job getting away from the sun! That was close.");
+			this.setTimedEvent(0, i);
+			//this.timedEvents[0] = i + 10;
+                    }
+                    else if (!this.events["blackhole"] && this.player.distanceTo(this.blackHole) < this.scale*5e2) {
+			console.log(this.player.angleTo(this.blackHole));
+			this.events["blackhole"] = true;
+			this.showMonolog("A blackhole is approaching! Don't get close to it!");
+                    }
+		    if (i == this.timedEvents[0]) {
+			this.showMonolog("Now we've gotten past the immediate danger, we can do what we came here to do..");
+		    } else if (i == this.timedEvents[1]) {
+			
+		    } else if (i == this.timedEvents[2]) {
+                    } else if (i == this.timedEvents[3]) {
+                    } else if (i == this.timedEvents[4]) {
+                    } else if (i == this.timedEvents[5]) {
+                    } else if (i == this.timedEvents[6]) {
+                    } else if (i == this.timedEvents[7]) {
+                    } else if (i == this.timedEvents[8]) {
+                    } else if (i == this.timedEvents[9]) {
+                    }
+		}
+		*/
+		
+		this.time += dt;
+		
+		//console.log(this.time)
+		//console.log(this.objects.length)
+                //console.log("game.update()")
+                let i = 0;
+                let a;
+		
+		//console.log(this.player.distanceTo(this.objects[0]))
+
+		//if (this.sun.mass == 0) {
+		//this.stopGame = true;
+		//}
+
+		
+		//if (this.player.distanceTo(this.objects[0]) > this.scale*1e3) {
+		  //  console.log("It seems like you're heading towards infinity, would you like to restart?");
+		//}
+		
+
+		/*
+		// THIS SHOULD REALLY ONLY BE UPDATED WHENEVER A COLLISION HAPPENS
+		let massiveObjects = [0];
+		for (let k = 1; k < this.objects.length; k++) {
+		    if (this.objects[0].mass/this.objects[k].mass < 1e3) {
+			massiveObjects.push(k);
+		    }
+		}
+		*/
+
+		//console.log(massiveObjects)
+		
+                while (i < this.objects.length) {
+                    this.objects[i].update(dt, this.objects, i);
+
+		    if (!this.unplayable && !this.events["comets-approaching"] && this.objects[i] instanceof Comet && this.player.distanceTo(this.objects[i]) < this.scale*5e2) {
+			this.showMonolog("Comets approaching! Don't get hit by these fast moving objects!");
+			this.events["comets-approaching"] = true;
+		    }
+		    
+                    // check to see if this object has collided with any other object
+                    let collision = false;
+                    let j = 0;
+                    let transferVelocity = {"x":0, "y":0};
+                    while (j < this.objects.length) {
+                        //console.log(this.time - this.objects[i].creationTime, this.minimumCollisionTime)
+                        if (i != j && this.objects[i].inside(this.objects[j]) && this.objects[i].mass < this.objects[j].mass) {
+			    this.objects[i].exploded = true;
+			    collision = true;
+                            break;
+                        } else {
+                            j++;
+                        }
+                    }
+                    
+                    if (collision) {
+                        
+                        // Calculate angle that object i collided into object j, from j's perspective
+                        let a = -1*this.objects[j].angleTo(this.objects[i]); //+ Math.PI/2
+                        
+                        //console.log(a*180/Math.PI)
+                        
+                        // Transfer mass and velocity to collision object j
+                        let r = 1*10**(-Number(10*Math.random()));//randn_bm();
+                        
+                        //console.log(r, magnitude(this.objects[i].velocity)*(1-r), (G*this.objects[j].mass/(this.scale*this.objects[j].radius))**(1/5));
+                        
+                        if (magnitude(this.objects[i].velocity)*(1-r) < (2*G*this.objects[j].mass/(this.scale*this.objects[j].radius))**(1/2)) {
+                            r = 1;
+                        }
+                        
+                        let transferMass =  r*this.objects[i].mass;
+                        
+                        //console.log(r, transferMass, this.objects[i].mass);
+                        
+                        this.objects[j].mass += transferMass;
+                        this.objects[i].mass = (1-r)*this.objects[i].mass;
+                        
+                        transferVelocity.x = this.objects[i].velocity.x*transferMass/(transferMass + this.objects[j].mass);
+                        transferVelocity.y = this.objects[i].velocity.y*transferMass/(transferMass + this.objects[j].mass);
+                        
+                        this.objects[j].velocity.x += transferVelocity.x;
+                        this.objects[j].velocity.y += transferVelocity.y;
+                        
+                        this.objects[i].velocity.x -= transferVelocity.x;
+                        this.objects[i].velocity.y -= transferVelocity.y;
+
+                        let angleDebry;
+                        let numberDebry = 0;
+                        //while (numberDebry < 1) {
+                        while (false) {
+                        //while (magnitude(this.objects[i].velocity)*(1-r) > (2*G*this.objects[j].mass/(this.scale*this.objects[j].radius))**(1/2)) {
+                        //while (magnitude(this.objects[i].velocity) > 1) {
+                            
+                            numberDebry++;
+                            console.log(String(numberDebry) + "th debry");
+                            
+                            r = 1*10**(-Number(10*Math.random()));
+                            
+                            if (magnitude(this.objects[i].velocity)*(1-r) < Math.sqrt(2*G*this.objects[j].mass/(this.scale*this.objects[j].radius))) {
+                                r = 1;
+                            }
+
+                            transferMass =  r*this.objects[i].mass;
+                            this.objects[i].mass = (1-r)*this.objects[i].mass;
+                            
+                            transferVelocity.x = this.objects[i].velocity.x*transferMass/(transferMass + this.objects[i].mass);
+                            transferVelocity.y = this.objects[i].velocity.y*transferMass/(transferMass + this.objects[i].mass);
+                            
+                            this.objects[i].velocity.x -= transferVelocity.x;
+                            this.objects[i].velocity.y -= transferVelocity.y;
+                            
+                            angleDebry = (Math.PI/2)*Math.random() + a - Math.PI/4; // r * (a + p/4 - (a - p/4)) + a - p/4 = p/2*r + a - p/4
+                            
+                            //console.log(transferRatio, transferMass, this.objects[i].mass);
+                            
+                            //console.log('left over velocity = ', magnitude(this.objects[i].velocity), 'transfer velocity = ', magnitude(transferVelocity))
+                            
+                            //console.log("debry")
+                            //console.log(this.objects[i].velocity.x, this.objects[i].velocity.y)
+                            //console.log(transferRatio)
+                            //console.log(transferMass, this.objects[j].mass)
+                            //console.log(angleDebry)
+                            //console.log(transferVelocityX, transferVelocityY)
+                            
+                            this.createDebry(this.objects[j].position.x + 1.1*this.objects[j].radius*Math.cos(-a),
+                                            this.objects[j].position.y + 1.1*this.objects[j].radius*Math.sin(-a),
+                                            transferMass,
+                                            this.objects[i].color,
+                                            magnitude(transferVelocity)*Math.cos(-angleDebry),
+                                            magnitude(transferVelocity)*Math.sin(-angleDebry));
+                        
+                            //numberDebry++;
+                        }
+                        
+                        /*
+                            this.createDebry(this.objects[j].position.x + 1.05*this.objects[j].radius*Math.sin(a), 
+                                        this.objects[j].position.y + 1.05*this.objects[j].radius*Math.cos(a),
+                                        this.objects[i].mass, 
+                                        this.objects[i].color,
+                                        this.objects[i].velocity.x*Math.cos(a),
+                                        this.objects[i].velocity.y*Math.sin(a));
+                            */
+                        
+                        
+                        
+                        
+                        //console.log(Math.acos(dot(this.objects[i].position,this.objects[j].position)/(magnitude(this.objects[i].position)*magnitude(this.objects[j].position)))*180/Math.PI);
+                        this.explosions.push(new Explosion(this.objects[i].position, this.objects[i].radius, this.objects[i].mass, this.objects[i].color));
+                        this.objects.splice(i, 1);
+                    } else {
+                        i++;
+                    }
+                }
+                
+                i = 0;
+                while (i < this.explosions.length) {
+                    if (this.explosions[i].update()) {
+                        this.explosions.splice(i, 1);
+                    } else {
+                        i++;
+                    }
+                }
+
+		//console.log(this.objects)
+                
+                this.render();
+            }
+            
+            render() {
+                // Clear game map and mini map
+                gameMapContext.clearRect(0, 0, gameMapCanvas.width, gameMapCanvas.height);
+                miniMapContext.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+
+		//ctx.fillRect(x, y, width, height);
+		//gameMapContext.fillStyle = "white";
+                //gameMapContext.font = "10px Arial";
+		//gameMapContext.fillText("Press play to listen to \"Always\" by East Forest.", gameMapCanvas.width/5, gameMapCanvas.height/5)
+		
+		/*
+		let hours = String(Math.floor((this.time/3600)));
+		let minutes = String(Math.floor((this.time/60) % 60));
+		let seconds = String((this.time % 60).toFixed(1));
+		
+		gameMapContext.fillStyle = "white";
+                gameMapContext.font = "10px Arial";
+                gameMapContext.fillText("Game time: " + hours + " " + minutes + " " + seconds, 10, 50);
+		*/
+		
+		let d;
+		if (this.sun.mass > 0) {
+		    d = randn_bm()/4 + 3/4;
+		} else {
+		    d = 0;
+		}
+		
+		//this.player.render(this.objects[0], this.player, d);
+		
+                // render objects
+                for (let object of this.objects) {
+                    console.log(object)
+                    
+                    object.render(this.objects[0], this.player, d);
+                }
+                
+                // render explosions
+                for (let explosion of this.explosions) {
+                    explosion.render(this.player);
+                }
+
+		/*
+		if (this.sun.mass <= 0) {
+		    gameMapContext.rect(0, 0, gameMapCanvas.width, gameMapCanvas.height);
+                    miniMapContext.rect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+		}
+		*/
+            }
+            
+            createDebry(x, y, mass, color, velocityX, velocityY) {
+                //console.log("game.createDebry()")
+                
+                //let debry = new Object(this.objects[j].position.x + 1.05*this.objects[j].radius*Math.sin(a), 
+                //                       this.objects[j].position.y + 1.05*this.objects[j].radius*Math.cos(a),
+                //                       this.objects[i].mass, this.objects[i].color);
+                                       
+                //debry.setVelocity(this.objects[i].velocity.x*Math.cos(a), this.objects[i].velocity.y*Math.sin(a));
+                
+                let debry = new Object(x, y, mass, color, this.scale);
+                                       
+                debry.setVelocity(velocityX, velocityY);
+                
+                //console.log(orbitalBody);
+                
+                //debry.orbitalBody = orbitalBody;
+                
+                //console.log(debry)
+                
+                //console.log("debry")
+                //console.log(debry.position)
+                //console.log(debry.mass)
+                //console.log(debry.radius)
+                //console.log(debry.velocity)
+                                       
+                this.objects.push(debry);
+            }
+
+	    setPlayerDirection(angle) {
+		this.player.setDirection(angle);
+	    }
+
+	    activatePlayerRocket(dir) {
+		this.player.activateRocket(dir);
+	    }
+	    
+	    deactivatePlayerRocket(dir) {
+		this.player.deactivateRocket(dir);
+            }
+        }
+        
+        class Object {
+            constructor(x, y, mass, color, scale) {
+                this.position = {"x": x, "y": y};
+                this.mass = mass;
+                this.radius;
+                this.calcRadius();
+                this.color = color;
+                //this.existedFor = 0;
+                this.velocity = {"x": 0, "y": 0};
+                this.acceleration = {"x": 0, "y": 0};
+                //this.orbitalBody = null;
+                this.orbit = [];
+                this.scale = scale;
+        		this.exploded = false;  
+            }
+            
+            calcRadius() {
+                //this.radius = Math.max((this.mass)**(1/2), 1);
+                this.radius = Math.max(Math.log(this.mass), 1);
+            }
+            
+            setVelocity(vx, vy) {
+                this.velocity.x = vx;
+                this.velocity.y = vy;
+            }
+            
+            distanceTo(object) {
+		//console.log(this.scale, this.position.x, object.position.x, this.position.y, object.position.y)
+                return this.scale*Math.sqrt((this.position.x - object.position.x)**2 + (this.position.y - object.position.y)**2);
+            }
+            
+            angleTo(object) {
+                return Math.atan2(object.position.x - this.position.x, this.position.y - object.position.y) - Math.PI/2;
+            }
+            
+            inside(object) {
+                if (this.distanceTo(object)/this.scale < object.radius) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            
+            calculateOrbit(dt) {
+                this.orbit = [this.position];
+                let dF = 0;
+                let mF = 0;
+                let a = {"x": 0, "y": 0};
+                let v = {"x": this.velocity.x, "y": this.velocity.y};
+                let p = {"x": this.position.x, "y": this.position.y};
+                for (let i = 0; i < 10; i++) {
+                    dF = angle(this.orbit[i], this.orbitalBody.position);
+                    mF = gravityForce(this.orbitalBody.mass, distance(this.orbit[i], this.orbitalBody.position));
+		            a.x = mF*Math.cos(dF);
+		            a.y = mF*Math.sin(dF);
+		            v.x += a.x*dt;
+                    v.y += a.y*dt;
+                    p.x += v.x*dt;
+                    p.y += v.y*dt;
+                    this.orbit.push({"x": p.x, "y": p.y});
+                }
+            }
+            
+            update(dt, allObjects, me) {
+		//console.log("update")
+		
+                //this.existedFor += dt;
+                this.calcRadius();
+                
+                this.acceleration.x = 0;
+                this.acceleration.y = 0;
+
+		//let k = 0;
+		
+		for (let k = 0; k < allObjects.length; k++) {
+		//for (let k of massive) {
+		    if (k != me) {
+			//console.log(k, me);
+
+			let object = allObjects[k];
+
+			let dirForce = this.angleTo(object);
+			//console.log(dirForce);
+
+			let magnitudeForce = gravityForce(object.mass, this.distanceTo(object));
+                        //console.log(magnitudeForce)
+
+			this.acceleration.x += magnitudeForce*Math.cos(dirForce);
+                        this.acceleration.y += magnitudeForce*Math.sin(dirForce);
+		    }
+		}
+
+		this.velocity.x += this.acceleration.x*dt;
+                this.velocity.y += this.acceleration.y*dt;
+
+                //console.log(this.velocity)                                                                                                
+
+                this.position.x += this.velocity.x*dt;
+		this.position.y += this.velocity.y*dt;
+		
+		/*
+		for (let i = 0; i < allObjects.length; i++) {
+                //if (this.orbitalBody) {
+		    if (i != me) {
+			let orbitalBody = allObjects[i];
+			let dirForce = this.angleTo(orbitalBody);
+			console.log(dirForce)
+			
+			let magnitudeForce = gravityForce(orbitalBody.mass, this.distanceTo(orbitalBody));
+			console.log(magnitudeForce)
+			
+			//console.log(magnitudeForce, this.distanceTo(this.orbitalBody), this.mass, this.orbitalBody.mass);
+			
+			this.acceleration.x += magnitudeForce*Math.cos(dirForce);
+			this.acceleration.y += magnitudeForce*Math.sin(dirForce);
+		    
+			this.velocity.x += this.acceleration.x*dt;
+			this.velocity.y += this.acceleration.y*dt;
+			
+			this.position.x += this.velocity.x*dt;
+			this.position.y += this.velocity.y*dt;
+			console.log()
+                    }
+                    //this.calculateOrbit(dt); // for development, should actually just run this once, then pop current time and push next
+                } 
+		*/
+		
+                //this.position.x += this.velocity.x*dt;
+                //this.position.y += this.velocity.y*dt;
+                
+                if (magnitude(this.velocity) > 100.0) {
+                    console.log("ERROR: SPEED GREATER THAN 100.0!");
+                }
+            }
+            
+            render(centerMass, player, d) {
+		//console.log(player)
+                //console.log("object.render()")
+                
+		let D;
+		let angleToCenter;
+		
+		console.log(this.position)
+		
+		if (0 < gameMapCanvas.width/2 + this.position.x - player.position.x &&
+		    gameMapCanvas.width/2 + this.position.x - player.position.x < gameMapCanvas.width &&
+		    0 < gameMapCanvas.height/2 + this.position.y - player.position.y &&
+		    gameMapCanvas.height/2 + this.position.y - player.position.y < gameMapCanvas.height) {
+                //if (0 < player.position.x - this.position.x &&
+		    //player.position.x - this.position.x < gameMapCanvas.width &&
+		    //0 < player.position.y - this.position.y &&
+		    //player.position.y - this.position.y < gameMapCanvas.height) {
+		    //let me = {"position": {"x": gameMapCanvas.width/2, "y": gameMapCanvas.height/2}};
+		    //gameMapContext.save()
+		    
+		    gameMapContext.lineWidth = 2;
+                    gameMapContext.beginPath();
+
+		    gameMapContext.arc(gameMapCanvas.width/2 + this.position.x - player.position.x,
+				       gameMapCanvas.height/2 + this.position.y - player.position.y,
+				       this.radius, 0, 2 * Math.PI);
+		    
+                    //gameMapContext.arc(player.position.x - this.position.x,
+		    //player.position.y - this.position.y,
+		    //this.radius, 0, 2 * Math.PI);
+
+		    
+		    if(this.position.x == centerMass.position.x && this.position.y == centerMass.position.y) {
+			gameMapContext.fillStyle = pSBC(3/4 - d, this.color);
+			gameMapContext.strokeStyle = pSBC(3/4 - d, this.color);
+                    } else {
+			gameMapContext.fillStyle = this.color;
+			gameMapContext.strokeStyle = this.color;
+		    }
+		  
+                    gameMapContext.fill();
+		    gameMapContext.stroke();
+		    //gameMapContext.restore()
+
+		    if(this.position.x == centerMass.position.x && this.position.y == centerMass.position.y) {
+                        gameMapContext.save();
+                        gameMapContext.shadowColor = this.color;
+                        gameMapContext.shadowBlur = 40*d;
+                        gameMapContext.fill();
+                        gameMapContext.restore();
+                    }
+		    
+		    angleToCenter = this.angleTo(centerMass);
+
+		    // Shading
+		    if (this.position.x != centerMass.position.x && this.position.y != centerMass.position.y) {			
+			gameMapContext.save();
+			gameMapContext.lineWidth = 0;
+			gameMapContext.fillStyle = "#141414";//141414
+			D = d/Math.sqrt(this.distanceTo(centerMass))*this.scale;
+			gameMapContext.globalAlpha = .8/D;
+			gameMapContext.beginPath();
+			/*
+			gameMapContext.ellipse(player.position.x - this.position.x - 2e1*this.radius*Math.cos(angleToCenter)/Math.log(this.distanceTo(centerMass)),
+                                               player.position.y - this.position.y - 2e1*this.radius*Math.sin(angleToCenter)/Math.log(this.distanceTo(centerMass)),
+					       (.6*D+.4)*Math.log(this.distanceTo(centerMass))*this.radius/4,
+					       (.6*D+.4)*Math.log(this.distanceTo(centerMass))*this.radius/8,
+					       angleToCenter, 0, Math.PI * 2, true)
+			*/
+			
+			gameMapContext.arc(gameMapCanvas.width/2 + this.position.x - player.position.x - this.radius*Math.cos(angleToCenter)/D,
+                                           gameMapCanvas.height/2 + this.position.y - player.position.y - this.radius*Math.sin(angleToCenter)/D,
+                                           (.6*D+.4)*this.radius, angleToCenter + Math.PI/2, angleToCenter - Math.PI/2, true);
+			
+			//gameMapContext.arc(player.position.x - this.position.x - this.radius*Math.cos(angleToCenter)/D,
+                        //                   player.position.y - this.position.y - this.radius*Math.sin(angleToCenter)/D,
+			//		   (.6*D+.4)*this.radius, 0, Math.PI * 2, true);
+                        gameMapContext.fill();
+			gameMapContext.restore();
+
+			gameMapContext.save()
+			//gameMapContext.lineWidth = 2;
+			gameMapContext.globalAlpha = .8/D;
+			gameMapContext.beginPath();
+			gameMapContext.ellipse(gameMapCanvas.width/2 + this.position.x - player.position.x - .98*this.radius*Math.cos(angleToCenter)/D,
+					       gameMapCanvas.height/2 + this.position.y - player.position.y - .98*this.radius*Math.sin(angleToCenter)/D,
+					       (.6*D+.4)*this.radius,
+					       (.4*D + .4)*this.radius*Math.log(this.distanceTo(centerMass)), angleToCenter + Math.PI/2, 0, Math.PI);
+			gameMapContext.fillStyle = "#141414";
+			//gameMapContext.strokeStyle = this.color;
+			gameMapContext.fill();
+			//gameMapContext.stroke();
+			gameMapContext.restore();
+		    }
+		}
+
+		if (this.minimap) {
+		    miniMapContext.lineWidth = 1;
+                    miniMapContext.beginPath();
+                    miniMapContext.arc(miniMapCanvas.width/2 + this.position.x/10 - centerMass.position.x,
+				       miniMapCanvas.height/2 + this.position.y/10 - centerMass.position.y, this.radius/5, 0, 2 * Math.PI);
+                    miniMapContext.fillStyle = this.color;                                                                                     
+                    miniMapContext.strokeStyle = this.color;                                                                                   
+                    miniMapContext.fill();
+                    miniMapContext.stroke();
+		}
+            }
+        }
+        
+        class Astroid extends Object {
+            constructor(x, y, mass, color, scale) {
+                super(x, y, mass, color, scale);
+                this.rotationSpeed = (Math.random() - 0.5);
+                this.artifacts = [];
+                this.createArtifacts();
+            }
+            
+            createArtifacts() {
+                let numberArtifacts = Math.floor(this.radius/4);
+                for (let i = 0; i < numberArtifacts; i++) {
+                    this.artifacts.push(new Artifact(2*Math.random()*Math.PI,
+                                                       2*Math.random()*Math.PI,
+                                                       Math.random()*this.radius/25 + this.radius/25,
+                                                       "#141414"));
+                }
+                this.rotationSpeed = (Math.random() - 0.5);
+            }
+            
+            update(dt) {
+                super.update(dt);
+                
+                for (let artifact of this.artifacts) {
+                    artifact.update(this.rotationSpeed * dt);
+                } 
+            }
+            
+            render(centerMass, player, d) {
+                super.render(centerMass, player, d);
+                
+                for (let artifact of this.artifacts) {
+                    artifact.render(centerMass, player, d, this.position.x, this.position.y, this.radius);
+                }
+            }
+            
+        }
+      
+      // Version 4.0 https://github.com/PimpTrizkit/PJs/wiki/12.-Shade,-Blend-and-Convert-a-Web-Color-(pSBC.js)
+      const pSBC=(p,c0,c1,l)=>{
+	  let r,g,b,P,f,t,h,i=parseInt,m=Math.round,a=typeof(c1)=="string";
+	  if(typeof(p)!="number"||p<-1||p>1||typeof(c0)!="string"||(c0[0]!='r'&&c0[0]!='#')||(c1&&!a))return null;
+	  if(!this.pSBCr)this.pSBCr=(d)=>{
+	      let n=d.length,x={};
+	      if(n>9){
+		  [r,g,b,a]=d=d.split(","),n=d.length;
+		  if(n<3||n>4)return null;
+		  x.r=i(r[3]=="a"?r.slice(5):r.slice(4)),x.g=i(g),x.b=i(b),x.a=a?parseFloat(a):-1
+	      }else{
+		  if(n==8||n==6||n<4)return null;
+		  if(n<6)d="#"+d[1]+d[1]+d[2]+d[2]+d[3]+d[3]+(n>4?d[4]+d[4]:"");
+		  d=i(d.slice(1),16);
+		  if(n==9||n==5)x.r=d>>24&255,x.g=d>>16&255,x.b=d>>8&255,x.a=m((d&255)/0.255)/1000;
+		  else x.r=d>>16,x.g=d>>8&255,x.b=d&255,x.a=-1
+	      }return x};
+	  h=c0.length>9,h=a?c1.length>9?true:c1=="c"?!h:false:h,f=this.pSBCr(c0),P=p<0,t=c1&&c1!="c"?this.pSBCr(c1):P?{r:0,g:0,b:0,a:-1}:{r:255,g:255,b:255,a:-1},p=P?p*-1:p,P=1-p;
+	  if(!f||!t)return null;
+	  if(l)r=m(P*f.r+p*t.r),g=m(P*f.g+p*t.g),b=m(P*f.b+p*t.b);
+	  else r=m((P*f.r**2+p*t.r**2)**0.5),g=m((P*f.g**2+p*t.g**2)**0.5),b=m((P*f.b**2+p*t.b**2)**0.5);
+	  a=f.a,t=t.a,f=a>=0||t>=0,a=f?a<0?t:t<0?a:a*P+t*p:0;
+	  if(h)return"rgb"+(f?"a(":"(")+r+","+g+","+b+(f?","+m(a*1000)/1000:"")+")";
+	  else return"#"+(4294967296+r*16777216+g*65536+b*256+(f?m(a*255):0)).toString(16).slice(1,f?undefined:-2)
+      }
+      
+      class Explosion {
+          constructor(position, radius, mass, color) {
+              this.position = position;
+              this.radius = radius;
+              this.mass = mass;
+              this.color = color;
+              this.count = 0;
+              this.scale = 50*Number(this.radius);
+	      this.end = 100*Number(this.radius);
+          }
+            
+            update() {
+                if (this.count >= this.end) {
+                    return true;
+                }
+		this.count++;
+            }
+            
+          render(player) {
+	      if (0 < gameMapCanvas.width/2 + this.position.x - player.position.x &&
+                    gameMapCanvas.width/2 + this.position.x - player.position.x < gameMapCanvas.width &&
+                    0 < gameMapCanvas.height/2 + this.position.y - player.position.y &&
+                    gameMapCanvas.height/2 + this.position.y - player.position.y < gameMapCanvas.height) {
+		  //if (0 < player.position.x - this.position.x && player.position.x - this.position.x < gameMapCanvas.width &&
+                  //0 < player.position.y - this.position.y && player.position.y - this.position.y < gameMapCanvas.height) {
+                  let r, lineWidth;
+                  if (this.count < this.scale) {
+                      r = this.radius*((this.scale - this.count + 1)/this.scale);
+                      lineWidth = 10*this.count/this.scale + 1;
+                  } else {
+                      r = 4*this.radius*((this.count - this.scale + 1)/this.count);
+                      lineWidth = 10*this.scale/this.count + 1;
+                  }
+                  gameMapContext.beginPath();
+                  gameMapContext.arc(gameMapCanvas.width/2 + this.position.x - player.position.x,
+				     gameMapCanvas.height/2 + this.position.y - player.position.y, r, 0, 2 * Math.PI);
+                  gameMapContext.lineWidth = lineWidth;
+                  gameMapContext.strokeStyle = this.color;
+		  gameMapContext.stroke();
+	      }
+          }
+      }
+
+      class Player extends Object {
+	  constructor(x, y, mass, scale) {
+	      super(x, y, mass, "#9a9a9a", scale); //0066ff
+	      //this.position = {"x":y,"y":x};
+	      this.thrust = 1e2;
+	      this.direction = 0;
+	      this.rocket = {"forward":0, "rotate": 0};
+	      //this.angularAcceleration = 0;
+	      this.angularVelocity = 0;
+	  }
+
+	  activateRocket (dir) {
+	      if (dir == "down") {
+		  this.rocket.forward = -1;
+	      } else if (dir == "up") {
+                  this.rocket.forward = 1;
+              }	else if	(dir == "left") {
+                  this.rocket.rotate = -1;
+              }	else {
+		  this.rocket.rotate = 1;
+	      }
+	  }
+
+	  deactivateRocket (dir) {
+	      if (dir == "down") {
+                  this.rocket.forward = 0;
+              } else if (dir == "up") {
+                  this.rocket.forward = 0;
+              } else if (dir == "left") {
+                  this.rocket.rotate = 0;
+              }	else {
+                  this.rocket.rotate = 0;
+              }
+          }
+
+	  setDirection(angle) {
+	      //if (this.rocket.y != 0) {
+	      
+	      //}
+	      
+	      //this.direction = angle;
+	      //console.log("updated direction: ",this.direction)
+	  }
+
+	  update(dt, otherObjects, i) {
+	      //console.log(this.rocket.rotate)
+
+	      //console.log(this.mass)
+	      //this.radius = Math.log(this.mass);
+	      
+	      super.update(dt, otherObjects, i);
+
+	      this.angularVelocity += dt*this.thrust*this.rocket.rotate/500;
+	      this.direction += dt*this.angularVelocity;
+
+	      if (this.rocket.forward == 1) {
+		  let rocketAccelerationX = this.thrust*dt*Math.cos(this.direction);//*this.rocket.x;
+		  let rocketAccelerationY = this.thrust*dt*Math.sin(this.direction);//*this.rocket.y;
+
+		  this.acceleration.x += rocketAccelerationX;
+		  this.acceleration.y += rocketAccelerationY;
+		  
+		  let rocketVelocityX = dt*rocketAccelerationX;
+		  let rocketVelocityY = dt*rocketAccelerationY;
+
+		  this.velocity.x += rocketVelocityX;
+		  this.velocity.y += rocketVelocityY;
+		  
+		  //console.log(this.velocity)
+
+		  //console.log(dt*rocketVelocityX, dt*rocketVelocityY)
+		  
+		  this.position.x += dt*rocketVelocityX;
+		  this.position.y += dt*rocketVelocityY;
+	      } else if (this.rocket.forward == -1){
+		  //console.log(-1, dt**2*this.thrust/10);
+		  let decrease = dt*this.thrust/1;
+		  if (this.angularVelocity % 2*Math.PI < 0 && (this.angularVelocity - decrease) % 2*Math.PI < 0) {
+		      this.angularVelocity += dt*this.thrust/10;
+		  } else if (this.angularVelocity % 2*Math.PI > 0 && (this.angularVelocity - decrease) % 2*Math.PI > 0) {
+		      this.angularVelocity -= dt*this.thrust/10;
+		  } else {
+		      this.angularVelocity = 0;
+		  }
+	      }
+	      
+	      //console.log("using direction: ", this.direction)
+	      
+	      //console.log(this.acceleration)
+	      
+	      //this.velocity.x += dt*this.acceleration.x;
+	      //this.velocity.y += dt*this.acceleration.y;
+
+	      //console.log(this.velocity)
+	      
+	      //this.position.x += dt*this.velocity.x;
+	      //this.position.y += dt*this.velocity.y;
+	      
+	      //console.log(this.position)
+	  }
+
+	  render(centerMass, me, d) {
+	      //super.render(centerMass, me);
+
+	      let D = d/Math.sqrt(this.distanceTo(centerMass))*this.scale;
+	      let angleToCenter = this.angleTo(centerMass);
+
+	      super.render(centerMass, me, d);
+
+	      /*
+	      // render ship body
+	      // Back
+	      gameMapContext.lineWidth = 2;
+              gameMapContext.beginPath();
+              gameMapContext.arc(gameMapCanvas.width/2, gameMapCanvas.height/2, this.radius, 0, 2*Math.PI);
+              gameMapContext.fillStyle = this.color;
+              gameMapContext.strokeStyle = this.color;
+              gameMapContext.fill();
+              gameMapContext.stroke();
+	      // Back shade
+	      gameMapContext.save();
+              gameMapContext.lineWidth = 0;
+              gameMapContext.fillStyle = "#141414";//141414                                                                               
+              gameMapContext.globalAlpha = .8/D;
+              gameMapContext.beginPath();
+	      gameMapContext.arc(gameMapCanvas.width/2 - this.radius*Math.cos(angleToCenter)/D/2,
+                                 gameMapCanvas.height/2 - this.radius*Math.sin(angleToCenter)/D/2,
+                                 (.6*D+1)*this.radius, 0, Math.PI * 2, true);
+              gameMapContext.fill();
+              gameMapContext.restore();
+	      */
+
+	      // Front
+	      gameMapContext.lineWidth = 2;
+              gameMapContext.beginPath();
+              gameMapContext.arc(gameMapCanvas.width/2  + 1.75*this.radius*Math.cos(this.direction),
+				 gameMapCanvas.height/2 + 1.75*this.radius*Math.sin(this.direction), this.radius/2, 0, 2*Math.PI);
+              gameMapContext.fillStyle = this.color;
+              gameMapContext.strokeStyle = this.color;
+              gameMapContext.fill();
+              gameMapContext.stroke();
+
+	      // Front shade
+
+	      
+	      gameMapContext.save();
+              gameMapContext.lineWidth = 0;
+              gameMapContext.fillStyle = "#141414";//141414                                                                                       
+              gameMapContext.globalAlpha = .8/D;
+              gameMapContext.beginPath();
+	      gameMapContext.ellipse(gameMapCanvas.width/2 + 1.75*this.radius*Math.cos(this.direction) - .98*this.radius*Math.cos(angleToCenter)/D/2,
+                                     gameMapCanvas.height/2 + 1.75*this.radius*Math.sin(this.direction) - .98*this.radius*Math.sin(angleToCenter)/D/2,
+                                     (.6*D +.1)*this.radius/2,
+                                     (.4*D + .1)*this.radius*Math.log(this.distanceTo(centerMass)), angleToCenter + Math.PI/2, 0, Math.PI);
+	      /*
+	      gameMapContext.arc(gameMapCanvas.width/2  + 1.75*this.radius*Math.cos(this.direction) - this.radius*Math.cos(angleToCenter)/D/2,
+                                 gameMapCanvas.height/2 + 1.75*this.radius*Math.sin(this.direction) - this.radius*Math.sin(angleToCenter)/D/2,
+                                 (.6*D+1)*this.radius/2, 0, Math.PI * 2, true);
+	      */
+	      gameMapContext.fill();
+              gameMapContext.restore();
+	      
+
+	      // render ship rockets going forward
+	      if (this.rocket.forward == 1) {
+		  gameMapContext.beginPath();
+		  gameMapContext.arc(gameMapCanvas.width/2  + 2*this.radius*Math.cos(this.direction + 11*Math.PI/12),
+                                     gameMapCanvas.height/2 + 2*this.radius*Math.sin(this.direction + 11*Math.PI/12),
+				     this.radius/5, 0, 2*Math.PI);
+		  gameMapContext.fillStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+		  gameMapContext.strokeStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+		  gameMapContext.fill();
+		  gameMapContext.stroke();
+		  
+		  gameMapContext.beginPath();
+		  gameMapContext.arc(gameMapCanvas.width/2 + 2*this.radius*Math.cos(this.direction - 11*Math.PI/12),
+                                     gameMapCanvas.height/2 + 2*this.radius*Math.sin(this.direction - 11*Math.PI/12),
+				     this.radius/5, 0, 2*Math.PI);
+		  gameMapContext.fillStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+		  gameMapContext.strokeStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+		  gameMapContext.fill();
+		  gameMapContext.stroke();
+	      }
+
+	      // render ship rockets going backwards
+              if (this.rocket.forward == -1) {
+		  // Front right brake
+		  gameMapContext.beginPath();
+		  gameMapContext.arc(gameMapCanvas.width/2  + 2*this.radius*Math.cos(this.direction + 1*Math.PI/4),
+                                     gameMapCanvas.height/2 + 2*this.radius*Math.sin(this.direction + 1*Math.PI/4),
+                                     this.radius/5, 0, 2*Math.PI);
+		  gameMapContext.fillStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+		  gameMapContext.strokeStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+		  gameMapContext.fill();
+		  gameMapContext.stroke();
+
+		  // Back left
+		  gameMapContext.beginPath();
+		  gameMapContext.arc(gameMapCanvas.width/2 + 2*this.radius*Math.cos(this.direction - 1*Math.PI/4),
+                                     gameMapCanvas.height/2 + 2*this.radius*Math.sin(this.direction - 1*Math.PI/4),
+                                     this.radius/5, 0, 2*Math.PI);
+		  gameMapContext.fillStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+		  gameMapContext.strokeStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+		  gameMapContext.fill();
+		  gameMapContext.stroke();
+
+		  gameMapContext.beginPath();
+                  gameMapContext.arc(gameMapCanvas.width/2 + 2*this.radius*Math.cos(this.direction + 3*Math.PI/4),
+                                     gameMapCanvas.height/2 + 2*this.radius*Math.sin(this.direction + 3*Math.PI/4),
+                                     this.radius/5, 0, 2*Math.PI);
+                  gameMapContext.fillStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+                  gameMapContext.strokeStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+                  gameMapContext.fill();
+                  gameMapContext.stroke();
+
+		  gameMapContext.beginPath();
+                  gameMapContext.arc(gameMapCanvas.width/2 + 2*this.radius*Math.cos(this.direction - 3*Math.PI/4),
+                                     gameMapCanvas.height/2 + 2*this.radius*Math.sin(this.direction - 3*Math.PI/4),
+                                     this.radius/5, 0, 2*Math.PI);
+                  gameMapContext.fillStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+                  gameMapContext.strokeStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+                  gameMapContext.fill();
+                  gameMapContext.stroke();
+	      }
+
+	      // render ship rockets right
+              if (this.rocket.rotate == 1) {
+                  gameMapContext.beginPath();
+                  gameMapContext.arc(gameMapCanvas.width/2  + 2*this.radius*Math.cos(this.direction - Math.PI/2),
+                                     gameMapCanvas.height/2 + 2*this.radius*Math.sin(this.direction - Math.PI/2),
+                                     this.radius/5, 0, 2*Math.PI);
+                  gameMapContext.fillStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+                  gameMapContext.strokeStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+                  gameMapContext.fill();
+                  gameMapContext.stroke();
+              }
+
+	      // render ship rockets left
+              if (this.rocket.rotate == -1) {
+                  gameMapContext.beginPath();
+                  gameMapContext.arc(gameMapCanvas.width/2  + 2*this.radius*Math.cos(this.direction + Math.PI/2),
+                                     gameMapCanvas.height/2 + 2*this.radius*Math.sin(this.direction + Math.PI/2),
+                                     this.radius/4, 0, 2*Math.PI);
+                  gameMapContext.fillStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+                  gameMapContext.strokeStyle = pSBC(1/2 - randn_bm(), "#ffbb5c");
+                  gameMapContext.fill();
+                  gameMapContext.stroke();
+              }
+
+	      if (this.minimap) {
+	      // render ship on mini map
+		  miniMapContext.lineWidth = 1;
+		  miniMapContext.beginPath();
+		  miniMapContext.arc(miniMapCanvas.width/2 + this.position.x/10 - centerMass.position.x,
+                                     miniMapCanvas.height/2 + this.position.y/10 - centerMass.position.y, this.radius/2, 0, 2 * Math.PI);
+		  miniMapContext.fillStyle = this.color;
+		  miniMapContext.strokeStyle = this.color;
+		  miniMapContext.fill();
+		  miniMapContext.stroke();
+	      }
+	  }
+      }
+
+      class Comet extends Object {
+	  constructor(x, y, mass, scale) {
+	      super(x, y, mass, ["#36bf38", "#0066ff", "#e04228", "#cc39cc", "#34bab1", "#6c34ba"][Math.floor(Math.random()*6)], scale);
+	  }
+
+	  render(centerMass, player, d) {
+	      let D = d/Math.sqrt(this.distanceTo(centerMass))*this.scale;
+              let angleToCenter = this.angleTo(centerMass);
+
+	      gameMapContext.save();
+              gameMapContext.globalAlpha = .6/D;
+              gameMapContext.beginPath();
+              gameMapContext.ellipse(gameMapCanvas.width/2 + this.position.x - player.position.x,
+                                     gameMapCanvas.height/2 + this.position.y - player.position.y,
+                                     this.radius,
+                                     (1.2*D + randn_bm()*.4)*this.radius*Math.log(this.distanceTo(centerMass)), angleToCenter + Math.PI/2, 0, Math.PI);
+              gameMapContext.fillStyle = pSBC(3/4 - d, this.color);
+              gameMapContext.fill();
+	      gameMapContext.restore()
+
+	      super.render(centerMass, player, d);
+	  }
+      }
+
+      class BlackHole extends Object {
+	  constructor(x, y, mass, scale) {
+              super(x, y, mass, "black", scale);
+	      this.consumeObjects = [];
+	      this.consumptionRate = 1e3;
+	      this.consumption = null;
+          }
+	  
+	  calcRadius() {
+	      this.radius = Math.max(Math.log(this.mass)/2, 1);
+	  }
+
+	  update(dt, otherObjects, i) {
+	      super.update(dt, otherObjects, i);
+	      this.consumption = dt*this.consumptionRate;
+	      this.consumeObjects = [];
+	      for (let j = 0; j < otherObjects.length; j++) {
+		  if (i != j && this.distanceTo(otherObjects[j]) < this.scale*this.radius*20) {
+		      this.consumeObjects.push(otherObjects[j]);
+
+		      /*
+		      let consumeMass = dt*this.consumptionRate*otherObjects[j].mass/this.distanceTo(otherObjects[j]);
+		      //console.log(consumeMass)
+		      this.mass += consumeMass;
+		      otherObjects[j].mass -= consumeMass;
+		      if (otherObjects[j].mass < 0) {
+			  otherObjects[j].mass = 0;
+		      }
+		      */
+		  }
+	      }
+	      
+
+	      //console.log(this.mass)
+	      
+	      /*
+	      for (let o of otherObjects) {
+		  if (this.distanceTo(o) < this.radius*2) {
+		      this.consumeObjects.push(o);
+		      let takeMass = dt*this.consumptionRate*Math.log(this.distanceTo(o))*o.mass;
+		      this.mass += takeMass;
+		      o.mass -= takeMass;
+		      if (o.mass < 0) {
+			  o.mass = 0;
+		      }
+		  }
+	      }
+	      */
+	  }
+
+	  absorbMass(object) {
+	      let consumeMass = this.consumption*object.mass/this.distanceTo(object);
+              this.mass += consumeMass;
+              object.mass -= consumeMass;
+              if (object.mass < 0) {
+                  object.mass = 0;
+              }
+	      return consumeMass/(consumeMass + object.mass);
+	  }
+	  
+	  render(centerMass, player, d) {
+	      
+              gameMapContext.lineWidth = 2;
+              gameMapContext.beginPath();
+              gameMapContext.arc(gameMapCanvas.width/2 + this.position.x - player.position.x,
+                                 gameMapCanvas.height/2 + this.position.y - player.position.y,
+                                 this.radius, 0, 2 * Math.PI);
+	      gameMapContext.fillStyle = this.color;
+	      gameMapContext.strokeStyle = this.color;
+              gameMapContext.fill();
+              gameMapContext.stroke();
+
+	      if (this.minimap) {
+		  miniMapContext.lineWidth = 1;
+		  miniMapContext.beginPath();
+		  miniMapContext.arc(miniMapCanvas.width/2 + this.position.x/10 - centerMass.position.x,
+                                     miniMapCanvas.height/2 + this.position.y/10 - centerMass.position.y, this.radius/2, 0, 2 * Math.PI);
+		  miniMapContext.fillStyle = this.color;
+		  miniMapContext.strokeStyle = this.color;
+		  miniMapContext.fill();
+		  miniMapContext.stroke();
+	      }
+
+	      let D = d/Math.sqrt(this.distanceTo(centerMass))*this.scale;
+              let angleToObject;
+	      let consumeRatio;
+	      for (let object of this.consumeObjects) {
+		  consumeRatio = this.absorbMass(object);
+
+		  //console.log(consumeRatio);
+		  
+		  //object[j].mass/this.distanceTo(otherObjects[j])
+
+		  if (this.distanceTo(object)/this.scale - this.radius > 0) {
+		      angleToObject = this.angleTo(object);
+		      gameMapContext.save();
+		      if (D != 0) {
+			  gameMapContext.globalAlpha = (consumeRatio)/.01/D;
+			  gameMapContext.fillStyle = pSBC(consumeRatio, object.color);
+		      } 
+		      gameMapContext.beginPath();
+		      gameMapContext.ellipse(gameMapCanvas.width/2 + object.position.x - player.position.x,
+					     gameMapCanvas.height/2 + object.position.y - player.position.y,
+					     object.radius,
+					     this.distanceTo(object)/this.scale - this.radius,
+					     angleToObject + Math.PI/2, 0, Math.PI);
+		      //gameMapContext.fillStyle = pSBC(consumeRatio, object.color);
+		      gameMapContext.fill();
+		      gameMapContext.restore()
+		  }
+	      }
+	  }
+      }
+      
+      
+      
+      class Artifact {
+          constructor(theta, phi, radius, color) {
+              this.theta = theta;
+              this.phi = phi;
+              this.color = color;
+              this.radius = radius;
+          }
+
+          update(angle) {
+              this.theta += angle;
+          }
+
+          render(x, y, R) {
+              if (Math.cos(this.theta) * Math.cos(this.phi) > 0) {
+                  gameMapContext.save()
+                  gameMapContext.shadowBlur = 10*(Math.cos(this.theta) * Math.cos(this.phi))**2;
+                  gameMapContext.shadowColor = this.color;
+                  gameMapContext.globalAlpha = (Math.cos(this.theta) * Math.cos(this.phi))**2/2;
+                  gameMapContext.strokeStyle = this.color;
+                  gameMapContext.fillStyle = this.color;
+                  gameMapContext.beginPath();
+                  gameMapContext.arc(x - R * Math.sin(this.theta) * Math.cos(this.phi),
+                              y + R * Math.sin(this.phi),
+                              Math.cos(this.theta) * Math.cos(this.phi) * this.radius,
+                              0,
+                              Math.PI*2)
+                  gameMapContext.fill();
+                  gameMapContext.stroke();
+                  gameMapContext.restore()
+              }
+          }
+      }
+      
+      //let game = new Game();
+      //game.run();
+    </script>
+    
+    <script>
+      let game = new Game("regular", "large", document.getElementById("game-speed").value, showDialog, removeLoadingScreen);
+      startCapturingInput();
+      setCanvasDimensions();
+      game.render();
+      //document.getElementById("play-button").click();
+      //let game = new Game();
+      //game.run();
+
+        
+      function onSelectGalaxyType(event) {
+	  game = new Game(event.value,
+	            "large",
+                //document.querySelector('input[name="galaxy-size"]:checked').value,
+			  document.getElementById("game-speed").value,
+			  showDialog, removeLoadingScreen);
+	  //game.render();
+      }
+      
+    /*
+      function onSelectGalaxySize(event) {
+	  game = new Game(document.querySelector('input[name="galaxy-type"]:checked').value,
+			  event.value,
+			  document.getElementById("game-speed").defaultValue,
+			  showDialog, removeLoadingScreen);
+      }
+    */
+
+      function onMouseMove(e) {	  
+	  let angle = -(Math.atan2(e.clientX - gameMapCanvas.width/2, gameMapCanvas.height/2 - e.clientY) - Math.PI/2);
+	  game.setPlayerDirection(angle);
+      }
+
+      function onKeyDown(e) {
+	  if (e.key == "ArrowUp") {
+	      game.activatePlayerRocket("up");
+	  } else if (e.key == "ArrowDown") {
+	      game.activatePlayerRocket("down");
+	  }
+	  else if (e.key == "ArrowRight") {
+	      game.activatePlayerRocket("right");
+          }
+	  else if (e.key == "ArrowLeft") {
+	      game.activatePlayerRocket("left");
+          }
+      }
+
+      function onKeyUp(e) {
+          if (e.key == "ArrowUp") {
+              game.deactivatePlayerRocket("up");
+          } else if (e.key == "ArrowDown") {
+              game.deactivatePlayerRocket("down");
+          }
+          else if (e.key == "ArrowRight") {
+              game.deactivatePlayerRocket("right");
+          }
+          else if (e.key == "ArrowLeft") {
+              game.deactivatePlayerRocket("left");
+          }
+      }
+      
+      function startCapturingInput() {
+          //window.addEventListener('mousemove',e => onMouseMove(e));
+	  window.addEventListener('keydown', e=> onKeyDown(e));
+	  window.addEventListener('keyup', e=> onKeyUp(e));
+      }
+
+      function showDialog(message, type) {
+	  //console.log("message = ", message)
+	  if (type == "restart") {
+	      document.getElementById("dialog-monolog").style.visibility = "hidden";
+	      document.getElementById("dialog-restart").style.visibility = "visible";
+	      document.getElementById("dialog-restart-message").innerHTML = message;
+	  } else if (type == "monolog") {
+	      document.getElementById("dialog-monolog").style.visibility = "visible";
+              document.getElementById("dialog-monolog-message").innerHTML = message;
+	  }
+      }
+
+      function restart() {
+	  document.getElementById("game-speed").value = document.getElementById("game-speed").defaultValue;
+	  document.getElementById("display-game-speed").innerHTML = document.getElementById("game-speed").defaultValue;
+	  document.getElementById('control-panel').style.visibility = 'hidden';
+	  document.getElementById("dialog-restart").style.visibility = "hidden";
+	  document.getElementById("main-menu").style.visibility = "visible";
+	  console.log(document.querySelector('input[name="galaxy-type"]:checked').value);
+	  document.getElementById("mini-map").style.visibility = "hidden";
+	  game.stop();
+	  /*
+	  game = new Game(document.querySelector('input[name="galaxy-type"]:checked').value,
+			  document.querySelector('input[name="galaxy-size"]:checked').value,
+			  document.getElementById("game-speed").defaultValue,
+			  showDialog, removeLoadingScreen);
+	  */
+	  game = new Game(document.querySelector('input[name="galaxy-type"]:checked').value,
+			  "large",
+			  document.getElementById("game-speed").defaultValue,
+			  showDialog, removeLoadingScreen);
+      }
+
+      function removeLoadingScreen() {
+	  document.getElementById('loading-screen').style.visibility = 'hidden';
+      }
+
+      function close(element) {
+	  //console.log("close")
+	  document.getElementById('dialog-monolog').style.visibility = 'hidden';
+      }
+    </script>
+</body>
+</html>
